@@ -95,8 +95,9 @@ def translate_markdown(text, dest_language='pt'):
 #export
 def jupyter_translate(fname, language='pt', rename_source_file=False, print_translation=False,dest_path="."):
     """
-    TODO:
-    add dest_path: Destination folder in order to save the translated files.
+    Translates the markdown cells of a jupyter notebook to the language defined by the
+    option --language, using googletrans. See https://github.com/WittmannF/jupyter-translate for
+    details.
     """
     data_translated = json.load(open(fname, 'r'))
 
