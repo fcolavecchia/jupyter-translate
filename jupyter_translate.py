@@ -93,7 +93,7 @@ def translate_markdown(text, dest_language='pt'):
     return translate(text)
 
 #export
-def jupyter_translate(fname, language='pt', rename_source_file=False, print_translation=False):
+def jupyter_translate(fname, language='pt', rename_source_file=False, print_translation=False,dest_path="."):
     """
     TODO:
     add dest_path: Destination folder in order to save the translated files.
@@ -125,8 +125,12 @@ def jupyter_translate(fname, language='pt', rename_source_file=False, print_tran
         print(f'The {language} translation has been saved as {fname}')
     else:
         dest_fname = f"{'.'.join(fname.split('.')[:-1])}_{language}.ipynb" # any.name.ipynb -> any.name_pt.ipynb
-        open(dest_fname,'w').write(json.dumps(data_translated))
-        print(f'The {language} translation has been saved as {dest_fname}')
+        dest_file = os.path.join(dest_path,dest_fname)
+        if(not os.path.exists(dest_file)):
+            os.mkdir(dest_path)
+        open(dest_file,'w').write(json.dumps(data_translated))
+        
+        print(f'The {language} translation has been saved as {dest_file}')
 
 def markdown_translator(input_fpath, output_fpath, input_name_suffix=''):
     with open(input_fpath,'r') as f:
