@@ -2,6 +2,30 @@ import json, fire, os, re
 from googletrans import Translator
 
 
+def translate_link_text(md_links,translator,dest_language): 
+
+    MD_LINK_TEXT_REGEX = '\[.*\]'
+    LINK_TEXT_REPLACEMENT_KW = 'xx_markdown_link_text_xx'    
+
+    def translate_link(link,dest_language):
+
+        link_text=re.findall(MD_LINK_TEXT_REGEX,link)[0]
+
+        rep_text = re.sub(MD_LINK_TEXT_REGEX,LINK_TEXT_REPLACEMENT_KW,link)
+        # print("rep_tex: ",rep_text)
+
+        next_link_texts =translator.translate(link_text,dest=dest_language).text
+        # print("next_link_texts: ",next_link_texts)
+
+        return rep_text.replace( LINK_TEXT_REPLACEMENT_KW, next_link_texts)
+
+
+    md_links_text = list(map(lambda link: translate_link(link,dest_language),md_links))
+    # print("md_links_text: ",md_links_text)
+
+    return md_links_text
+
+
 def translate_markdown(text, dest_language='pt'):
     # Regex expressions
     MD_CODE_REGEX='```[a-z]*\n[\s\S]*?\n```'
@@ -17,9 +41,8 @@ def translate_markdown(text, dest_language='pt'):
 
      # Inner function to replace tags from text from a source list
     def replace_from_list(tag, text, replacement_list):
-        list_to_gen = lambda: [(x) for x in replacement_list]
-        replacement_gen = list_to_gen()
-        return re.sub(tag, lambda x: next(iter(replacement_gen)), text)
+        replacement_gen = iter(replacement_list)
+        return re.sub(tag, lambda x: next(replacement_gen), text)
 
     # Create an instance of Tranlator
     translator = Translator()
@@ -28,13 +51,18 @@ def translate_markdown(text, dest_language='pt'):
     def translate(text):
         # Get all markdown links
         md_links = re.findall(MD_LINK_REGEX, text)
+        print(md_links)
+
+        # for link in md_links:
+        md_links = translate_link_text(md_links,translator,dest_language)
+        print(md_links)
 
         # Get all markdown code blocks
         md_codes = re.findall(MD_CODE_REGEX, text)
-
+        print(text)
         # Replace markdown links in text to markdown_link
         text = re.sub(MD_LINK_REGEX, LINK_REPLACEMENT_KW, text)
-
+        print(text)
         # Replace links in markdown to tag markdown_link
         text = re.sub(MD_CODE_REGEX, CODE_REPLACEMENT_KW, text)
 
